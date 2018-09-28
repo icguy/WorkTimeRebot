@@ -42,11 +42,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\Config.cs" />
+    <Compile Include="Model\EventType.cs" />
+    <Compile Include="Model\WorkEvent.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\EventReader.cs" />
+    <Compile Include="Utils\EventStreamUtils.cs" />
+    <Compile Include="Utils\Extensions.cs" />
+    <Compile Include="WorkTimeApp.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="IO\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

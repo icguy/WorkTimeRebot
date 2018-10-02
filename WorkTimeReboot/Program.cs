@@ -3,6 +3,8 @@ using WorkTimeReboot.Services.EventLogReader;
 using WorkTimeReboot.Services.IO;
 using WorkTimeReboot.Services.Timer;
 using WorkTimeReboot.Services.UserInput;
+using WorkTimeReboot.Tests;
+using WorkTimeReboot.Tests.Framework;
 
 namespace WorkTimeReboot
 {
@@ -10,7 +12,7 @@ namespace WorkTimeReboot
 	{
 		static void Main(string[] args)
 		{
-			new Tests.Tests().RunTests();
+			TestRunner.RunTests(new WorkTimeAppTests());
 			Console.ReadLine();
 			return;
 

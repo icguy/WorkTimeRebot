@@ -60,10 +60,13 @@
     <Compile Include="Tests\Mocks\MockFileIO.cs" />
     <Compile Include="Tests\Mocks\MockTimer.cs" />
     <Compile Include="Tests\Mocks\MockUserInput.cs" />
-    <Compile Include="Tests\Tests.cs" />
+    <Compile Include="Tests\Framework\TestAttribute.cs" />
+    <Compile Include="Tests\Framework\TestContextBase.cs" />
+    <Compile Include="Tests\Framework\TestHelper.cs" />
+    <Compile Include="Tests\Framework\TestRunner.cs" />
+    <Compile Include="Tests\WorkTimeAppTests.cs" />
     <Compile Include="Services\Timer\ITimer.cs" />
     <Compile Include="Services\Timer\Timer.cs" />
-    <Compile Include="Tests\TestWorkTimeApp.cs" />
     <Compile Include="Utils\EventStreamUtils.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="WorkTimeApp.cs" />

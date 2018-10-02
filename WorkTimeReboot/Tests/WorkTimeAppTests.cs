@@ -1,53 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using WorkTimeReboot.Model;
+using WorkTimeReboot.Services.EventLogReader;
+using WorkTimeReboot.Services.IO;
+using WorkTimeReboot.Services.Timer;
 using WorkTimeReboot.Services.UserInput;
+using WorkTimeReboot.Tests.Framework;
 using WorkTimeReboot.Tests.Mocks;
 
 namespace WorkTimeReboot.Tests
 {
-	class TestAttribute : Attribute { }
-
-	class Tests
+	class WorkTimeAppTests
 	{
-		public void RunTests()
-		{
-			var tests = this.GetType().GetRuntimeMethods().Where(m => m.GetCustomAttributes<TestAttribute>().Any());
-			var allTestsPassed = true;
-			foreach( var test in tests )
-			{
-				bool currentTestPassed = true;
-				try
-				{
-					currentTestPassed = (bool)test.Invoke(this, new object[] { });
-				}
-				catch( Exception ex )
-				{
-					Console.WriteLine($"test threw exception: {ex}");
-					currentTestPassed = false;
-				}
-
-				if( !currentTestPassed )
-				{
-					Console.WriteLine($"=| FAILED {test.Name}");
-					allTestsPassed = false;
-				}
-				else
-				{
-					Console.WriteLine($"=| OK     {test.Name}");
-				}
-			}
-
-			Console.WriteLine();
-			if( !allTestsPassed )
-				Console.WriteLine("====== TESTS FAILED ======");
-			else
-				Console.WriteLine("====== TESTS PASSED ======");
-		}
-
 		[Test]
 		private bool Test1_Tick_MergesFine()
 		{
@@ -121,9 +85,8 @@ namespace WorkTimeReboot.Tests
 		}
 	}
 
-	class TestContext
+	class TestContext : TestContextBase
 	{
-		public bool TestPassed { get; private set; } = true;
 		public MockTimer Timer { get; private set; }
 		public MockFileIO FileIO { get; private set; }
 		public MockEventLogReader EventLogReader { get; private set; }
@@ -143,22 +106,17 @@ namespace WorkTimeReboot.Tests
 				this.UserInput
 			);
 		}
-
-		public void ExpectEqual(object a, object b, [CallerLineNumber] int lineNum = 0)
-		{
-			if( !a.Equals(b) )
-			{
-				this.TestPassed = false;
-				Console.WriteLine($"equality failed: {a} should equal {b} on line {lineNum}");
-			}
-		}
 	}
 
-	static class TestHelper
+	class TestWorkTimeApp : WorkTimeApp
 	{
-		public static DateTime GetDateHours(int number)
+		public TestWorkTimeApp(ITimer timer, IFileIO fileIO, IEventLogReader eventLogReader, IUserInput userInput) : base(timer, fileIO, eventLogReader, userInput)
 		{
-			return new DateTime(2018, 07, 05, 06, 00, 00).AddHours(number);
+		}
+
+		public void InvokeTick()
+		{
+			this.Tick();
 		}
 	}
 }

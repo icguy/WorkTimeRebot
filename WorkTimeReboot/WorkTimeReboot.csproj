@@ -45,8 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IO\FileIO.cs" />
-    <Compile Include="IO\IFileIO.cs" />
+    <Compile Include="Services\IO\FileIO.cs" />
+    <Compile Include="Services\IO\IFileIO.cs" />
     <Compile Include="Model\Config.cs" />
     <Compile Include="Model\EventType.cs" />
     <Compile Include="Model\WorkEvent.cs" />
@@ -55,8 +55,8 @@
     <Compile Include="Tests\Mocks\MockFileIO.cs" />
     <Compile Include="Tests\Mocks\MockTimer.cs" />
     <Compile Include="Tests\Tests.cs" />
-    <Compile Include="Timer\ITimer.cs" />
-    <Compile Include="Timer\Timer.cs" />
+    <Compile Include="Services\Timer\ITimer.cs" />
+    <Compile Include="Services\Timer\Timer.cs" />
     <Compile Include="Utils\EventReader.cs" />
     <Compile Include="Utils\EventStreamUtils.cs" />
     <Compile Include="Utils\Extensions.cs" />

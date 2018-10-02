@@ -1,5 +1,5 @@
-using System;
-using WorkTimeReboot.IO;
+using WorkTimeReboot.Services.IO;
+using WorkTimeReboot.Services.Timer;
 
 namespace WorkTimeReboot
 {
@@ -13,14 +13,13 @@ namespace WorkTimeReboot
 				FilePath = "times.json"
 			};
 
-			var timer = new Timer.Timer(config.TimerIntervalInSeconds * 1000);
+			var timer = new Timer(config.TimerIntervalInSeconds * 1000);
 			var fileIO = new FileIO(config.FilePath);
 
 			new WorkTimeApp(
 				timer,
 				fileIO
-				)
-				.Run();
+				).Run();
 		}
 	}
 }

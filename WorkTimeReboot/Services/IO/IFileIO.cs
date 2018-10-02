@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using WorkTimeReboot.Model;
 
-namespace WorkTimeReboot.IO
+namespace WorkTimeReboot.Services.IO
 {
 	public interface IFileIO
 	{

@@ -1,5 +1,5 @@
 ﻿using System;
-using WorkTimeReboot.Timer;
+using WorkTimeReboot.Services.Timer;
 
 namespace WorkTimeReboot.Tests.Mocks
 {

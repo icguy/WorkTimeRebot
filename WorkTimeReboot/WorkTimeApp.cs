@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Linq;
-using WorkTimeReboot.IO;
+using WorkTimeReboot.Services.IO;
+using WorkTimeReboot.Services.Timer;
 using WorkTimeReboot.Utils;
 
 namespace WorkTimeReboot
 {
 	class WorkTimeApp
 	{
-		private readonly Timer.ITimer _timer;
-		private readonly FileIO _fileIO;
+		private readonly ITimer _timer;
+		private readonly IFileIO _fileIO;
 
-		public WorkTimeApp(Timer.ITimer timer, FileIO fileIO)
+		public WorkTimeApp(ITimer timer, IFileIO fileIO)
 		{
 			_timer = timer;
 			_fileIO = fileIO;

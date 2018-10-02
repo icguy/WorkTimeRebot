@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WorkTimeReboot.Timer
+namespace WorkTimeReboot.Services.Timer
 {
 	public class Timer : ITimer
 	{

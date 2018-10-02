@@ -1,22 +1,24 @@
 ﻿using System;
-using System.Timers;
-using WorkTimeReboot.Model;
+using System.Linq;
+using WorkTimeReboot.IO;
 using WorkTimeReboot.Utils;
 
 namespace WorkTimeReboot
 {
 	class WorkTimeApp
 	{
-		private Timer _timer;
+		private readonly Timer.ITimer _timer;
+		private readonly FileIO _fileIO;
 
-		public WorkTimeApp(Config config)
+		public WorkTimeApp(Timer.ITimer timer, FileIO fileIO)
 		{
-			_timer = new Timer(config.TimerIntervalInSeconds * 1000);
+			_timer = timer;
+			_fileIO = fileIO;
 		}
 
 		public void Run()
 		{
-			_timer.Elapsed += this.Tick;
+			_timer.Tick += this.Tick;
 			_timer.Start();
 			while( true )
 			{
@@ -27,11 +29,12 @@ namespace WorkTimeReboot
 			_timer.Stop();
 		}
 
-		private void Tick(object sender, EventArgs e)
+		private void Tick()
 		{
-			var workEvents = EventReader.GetWorkEvents();
-			workEvents = EventStreamUtils.CleanUpStream(workEvents);
-
+			var newWorkEvents = EventReader.GetWorkEvents();
+			var eventsFromFile = _fileIO.ReadFromFile();
+			var workEvents = EventStreamUtils.CleanUpStream(newWorkEvents.Concat(eventsFromFile));
+			_fileIO.WriteToFile(workEvents);
 		}
 
 		private bool HandleUserCommand(string command)
@@ -41,8 +44,15 @@ namespace WorkTimeReboot
 				case "exit":
 					return true;
 				default:
-					return false;
+					this.ShowHelp();
+					break;
 			}
+			return false;
+		}
+
+		private void ShowHelp()
+		{
+
 		}
 	}
 }

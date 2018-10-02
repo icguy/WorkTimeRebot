@@ -45,6 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Services\EventLogReader\EventLogReader.cs" />
+    <Compile Include="Services\EventLogReader\IEventLogReader.cs" />
     <Compile Include="Services\IO\FileIO.cs" />
     <Compile Include="Services\IO\IFileIO.cs" />
     <Compile Include="Model\Config.cs" />
@@ -57,7 +59,6 @@
     <Compile Include="Tests\Tests.cs" />
     <Compile Include="Services\Timer\ITimer.cs" />
     <Compile Include="Services\Timer\Timer.cs" />
-    <Compile Include="Utils\EventReader.cs" />
     <Compile Include="Utils\EventStreamUtils.cs" />
     <Compile Include="Utils\Extensions.cs" />
     <Compile Include="WorkTimeApp.cs" />

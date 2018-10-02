@@ -1,3 +1,4 @@
+using WorkTimeReboot.Services.EventLogReader;
 using WorkTimeReboot.Services.IO;
 using WorkTimeReboot.Services.Timer;
 
@@ -15,10 +16,12 @@ namespace WorkTimeReboot
 
 			var timer = new Timer(config.TimerIntervalInSeconds * 1000);
 			var fileIO = new FileIO(config.FilePath);
+			var eventLogReader = new EventLogReader();
 
 			new WorkTimeApp(
 				timer,
-				fileIO
+				fileIO,
+				eventLogReader
 				).Run();
 		}
 	}

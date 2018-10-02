@@ -3,6 +3,7 @@ using System.Linq;
 using WorkTimeReboot.Services.EventLogReader;
 using WorkTimeReboot.Services.IO;
 using WorkTimeReboot.Services.Timer;
+using WorkTimeReboot.Services.UserInput;
 using WorkTimeReboot.Utils;
 
 namespace WorkTimeReboot
@@ -12,12 +13,14 @@ namespace WorkTimeReboot
 		private readonly ITimer _timer;
 		private readonly IFileIO _fileIO;
 		private readonly IEventLogReader _eventLogReader;
+		private readonly IUserInput _userInput;
 
-		public WorkTimeApp(ITimer timer, IFileIO fileIO, IEventLogReader eventLogReader)
+		public WorkTimeApp(ITimer timer, IFileIO fileIO, IEventLogReader eventLogReader, IUserInput userInput)
 		{
 			_timer = timer;
 			_fileIO = fileIO;
 			_eventLogReader = eventLogReader;
+			_userInput = userInput;
 		}
 
 		public void Run()
@@ -26,14 +29,14 @@ namespace WorkTimeReboot
 			_timer.Start();
 			while( true )
 			{
-				var command = Console.ReadLine();
+				var command = _userInput.ReadLine();
 				if( this.HandleUserCommand(command) )
 					break;
 			}
 			_timer.Stop();
 		}
 
-		private void Tick()
+		protected void Tick()
 		{
 			var newWorkEvents = _eventLogReader.GetWorkEvents();
 			var eventsFromFile = _fileIO.ReadFromFile();
@@ -41,7 +44,7 @@ namespace WorkTimeReboot
 			_fileIO.WriteToFile(workEvents);
 		}
 
-		private bool HandleUserCommand(string command)
+		protected bool HandleUserCommand(string command)
 		{
 			switch( command )
 			{

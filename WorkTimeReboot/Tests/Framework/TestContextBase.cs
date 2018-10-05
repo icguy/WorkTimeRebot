@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace WorkTimeReboot.Tests.Framework
 {
-	class TestContextBase
+	public class TestContextBase
 	{
 		public bool TestPassed { get; private set; } = true;
 

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using WorkTimeReboot.Model;
 using WorkTimeReboot.Services.EventLogReader;
 using WorkTimeReboot.Services.IO;
 using WorkTimeReboot.Services.Timer;
@@ -38,10 +40,22 @@ namespace WorkTimeReboot
 
 		protected void Tick()
 		{
+			var workEvents = this.GetEvents();
+			_fileIO.WriteToFile(workEvents);
+		}
+
+		private IEnumerable<WorkEvent> GetEvents()
+		{
 			var newWorkEvents = _eventLogReader.GetWorkEvents();
 			var eventsFromFile = _fileIO.ReadFromFile();
 			var workEvents = EventStreamUtils.CleanUpStream(newWorkEvents.Concat(eventsFromFile));
-			_fileIO.WriteToFile(workEvents);
+			return workEvents;
+		}
+
+		protected WorkTimes Calculate()
+		{
+			var events = this.GetEvents();
+			return WorkTimesUtils.CreateWorkTimes(events);
 		}
 
 		protected bool HandleUserCommand(string command)

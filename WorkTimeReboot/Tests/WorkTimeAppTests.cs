@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using WorkTimeReboot.Model;
 using WorkTimeReboot.Services.EventLogReader;
@@ -7,6 +8,7 @@ using WorkTimeReboot.Services.Timer;
 using WorkTimeReboot.Services.UserInput;
 using WorkTimeReboot.Tests.Framework;
 using WorkTimeReboot.Tests.Mocks;
+using WorkTimeReboot.Utils;
 
 namespace WorkTimeReboot.Tests
 {
@@ -81,6 +83,193 @@ namespace WorkTimeReboot.Tests
 			context.ExpectEqual(TestHelper.GetDateHours(0), eventsWritten[0].Time);
 			context.ExpectEqual(TestHelper.GetDateHours(4), eventsWritten[1].Time);
 
+			return context.TestPassed;
+		}
+
+		[Test]
+		bool T001_DailyWork_FromEvents()
+		{
+			WorkEvent[] events = new WorkEvent[] {
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 09, 12, 00),
+					Type = EventType.Arrival
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 12, 12, 00),
+					Type = EventType.Departure
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 12, 52, 00),
+					Type = EventType.Arrival
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 17, 52, 00),
+					Type = EventType.Departure
+				}
+			};
+
+			var dailywork = WorkTimesUtils.CreateDailyWork(events, 8);
+			var context = new TestContextBase();
+			context.ExpectEqual(dailywork.Balance, new TimeSpan(0, 0, 0));
+			return context.TestPassed;
+		}
+		[Test]
+		bool T002_DailyWork_FromEvents()
+		{
+			WorkEvent[] events = new WorkEvent[] {
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 09, 12, 00),
+					Type = EventType.Departure
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 12, 12, 00),
+					Type = EventType.Departure
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 12, 52, 00),
+					Type = EventType.Departure
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 17, 52, 00),
+					Type = EventType.Departure
+				}
+			};
+
+			var dailywork = WorkTimesUtils.CreateDailyWork(events, 8);
+			var context = new TestContextBase();
+			context.ExpectEqual(dailywork.Balance, new TimeSpan(-8, 0, 0));
+			return context.TestPassed;
+		}
+		[Test]
+		bool T003_DailyWork_FromEvents()
+		{
+			WorkEvent[] events = new WorkEvent[] {
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 09, 12, 00),
+					Type = EventType.Arrival
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 12, 12, 00),
+					Type = EventType.Arrival
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 12, 52, 00),
+					Type = EventType.Arrival
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 17, 52, 00),
+					Type = EventType.Arrival
+				}
+			};
+
+			var dailywork = WorkTimesUtils.CreateDailyWork(events, 8);
+			var context = new TestContextBase();
+			context.ExpectEqual(dailywork.Balance, new TimeSpan(-8, 0, 0));
+			return context.TestPassed;
+		}
+		[Test]
+		bool T004_DailyWork_FromEvents()
+		{
+			WorkEvent[] events = new WorkEvent[] {
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 09, 12, 00),
+					Type = EventType.Arrival
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 12, 12, 00),
+					Type = EventType.Departure
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 12, 52, 00),
+					Type = EventType.Departure
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 17, 52, 00),
+					Type = EventType.Arrival
+				}
+			};
+
+			var dailywork = WorkTimesUtils.CreateDailyWork(events, 8);
+			var context = new TestContextBase();
+			context.ExpectEqual(dailywork.Balance, new TimeSpan(-5, 0, 0));
+			return context.TestPassed;
+		}
+		[Test]
+		bool T005_DailyWork_FromEvents()
+		{
+			WorkEvent[] events = new WorkEvent[] {
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 09, 12, 00),
+					Type = EventType.Departure
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 12, 12, 00),
+					Type = EventType.Arrival
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 12, 42, 00),
+					Type = EventType.Arrival
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 17, 42, 00),
+					Type = EventType.Departure
+				}
+			};
+
+			var dailywork = WorkTimesUtils.CreateDailyWork(events, 8);
+			var context = new TestContextBase();
+			context.ExpectEqual(dailywork.Balance, new TimeSpan(-2, -30, 0));
+			return context.TestPassed;
+		}
+		[Test]
+		bool T006_DailyWork_FromEvents()
+		{
+			WorkEvent[] events = new WorkEvent[] {
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 09, 12, 00),
+					Type = EventType.Departure
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 12, 12, 00),
+					Type = EventType.Arrival
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 12, 42, 00),
+					Type = EventType.Departure
+				},
+				new WorkEvent()
+				{
+					Time = new DateTime(2017, 06, 01, 17, 52, 00),
+					Type = EventType.Arrival
+				}
+			};
+
+			var dailywork = WorkTimesUtils.CreateDailyWork(events, 8);
+			var context = new TestContextBase();
+			context.ExpectEqual(dailywork.Balance, new TimeSpan(-7, -30, 0));
 			return context.TestPassed;
 		}
 	}

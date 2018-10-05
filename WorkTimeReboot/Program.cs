@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using WorkTimeReboot.Services.EventLogReader;
 using WorkTimeReboot.Services.IO;
 using WorkTimeReboot.Services.Timer;
@@ -12,9 +13,12 @@ namespace WorkTimeReboot
 	{
 		static void Main(string[] args)
 		{
-			TestRunner.RunTests(new WorkTimeAppTests());
-			Console.ReadLine();
-			return;
+			if( args.FirstOrDefault() == "/test" )
+			{
+				TestRunner.RunTests(new WorkTimeAppTests());
+				Console.ReadLine();
+				return;
+			}
 
 			var config = new Model.Config
 			{

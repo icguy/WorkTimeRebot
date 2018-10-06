@@ -8,7 +8,6 @@ namespace WorkTimeReboot.Services.Timer
 
 		public Timer(double interval)
 		{
-			this.Interval = interval;
 			_timer = new System.Timers.Timer(interval);
 			_timer.Elapsed += (s, e) => Tick();
 		}

@@ -27,7 +27,7 @@ namespace WorkTimeReboot.Utils
 			while( filteredEvents.Count != 0 )
 			{
 				var firstEventTime = filteredEvents[0].Time;
-				var currentDayEvents = filteredEvents.Where(e => (e.Time.DayOfYear == firstEventTime.DayOfYear)).ToList();
+				var currentDayEvents = filteredEvents.Where(e => (e.Time.Date == firstEventTime.Date)).ToList();
 				var currentDailyWork = CreateDailyWork(currentDayEvents, 8);
 				newDailyWorks.Add(currentDailyWork);
 				workTimes.Balance += currentDailyWork.Balance;
@@ -43,7 +43,12 @@ namespace WorkTimeReboot.Utils
 
 		public static DailyWork CreateDailyWork(IEnumerable<WorkEvent> events, int hoursToWorkToday)
 		{
-			var work = new DailyWork();
+			var work = new DailyWork()
+			{
+				Balance = TimeSpan.Zero,
+				Events = new WorkEvent[0],
+				HoursToWorkToday = 8
+			};
 			TimeSpan balance = TimeSpan.FromHours(-hoursToWorkToday);
 			List<WorkEvent> filteredEvents = new List<WorkEvent>();
 

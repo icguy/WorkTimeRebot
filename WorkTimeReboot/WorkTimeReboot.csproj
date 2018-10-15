@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\DailyWork.cs" />
+    <Compile Include="Model\Status.cs" />
     <Compile Include="Model\WorkTimes.cs" />
     <Compile Include="Services\EventLogReader\EventLogReader.cs" />
     <Compile Include="Services\EventLogReader\IEventLogReader.cs" />

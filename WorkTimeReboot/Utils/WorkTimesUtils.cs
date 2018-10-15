@@ -15,9 +15,7 @@ namespace WorkTimeReboot.Utils
 				DailyWorks = new DailyWork[0]
 			};
 			var lastWorkTime = workTimes.DailyWorks.LastOrDefault()?.Events?.LastOrDefault()?.Time ?? DateTime.MinValue;
-			var lastMidnight = DateTime.Now.Date;
 			var filteredEvents = events
-				.Where(e => lastWorkTime < e.Time && e.Time < lastMidnight)
 				.OrderBy(e => e.Time)
 				.ToList();
 
@@ -49,8 +47,8 @@ namespace WorkTimeReboot.Utils
 				Events = new WorkEvent[0],
 				HoursToWorkToday = 8
 			};
-			TimeSpan balance = TimeSpan.FromHours(-hoursToWorkToday);
-			List<WorkEvent> filteredEvents = new List<WorkEvent>();
+			var balance = TimeSpan.FromHours(-hoursToWorkToday);
+			var filteredEvents = new List<WorkEvent>();
 
 			DateTime? lastSignin = null;
 			foreach( var e in events )

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using WorkTimeReboot.Model;
@@ -8,6 +7,16 @@ namespace WorkTimeReboot.Utils
 {
 	public static class Extensions
 	{
+		public static void Print(this Status status)
+		{
+			Console.WriteLine("total:");
+			Console.WriteLine(status.Total);
+			Console.WriteLine();
+			Console.WriteLine("today:");
+			Console.WriteLine(status.TodayWork);
+			Console.WriteLine($"expected departure at: {status.ExpectedDeparture}");
+		}
+
 		public static WorkEvent ToWorkEvent(this EventLogEntry entry)
 		{
 			WorkEvent workEvent = new WorkEvent();

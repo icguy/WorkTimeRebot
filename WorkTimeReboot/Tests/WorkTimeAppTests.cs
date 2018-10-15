@@ -272,6 +272,27 @@ namespace WorkTimeReboot.Tests
 			context.ExpectEqual(dailywork.Balance, new TimeSpan(-7, -30, 0));
 			return context.TestPassed;
 		}
+		[Test]
+		bool T011_GetExpectedDeparture()
+		{
+			var dailyWork = new DailyWork()
+			{
+				Events = new WorkEvent[]
+				{
+					new WorkEvent() { Time = new DateTime(2017, 06, 21, 9, 00, 00), Type = EventType.Arrival },
+					new WorkEvent() { Time = new DateTime(2017, 06, 21, 10, 00, 00), Type = EventType.Departure },
+					new WorkEvent() { Time = new DateTime(2017, 06, 21, 11, 00, 00), Type = EventType.Arrival },
+					new WorkEvent() { Time = new DateTime(2017, 06, 21, 12, 00, 00), Type = EventType.Departure }
+				},
+				Balance = TimeSpan.FromHours(-6)
+			};
+
+			var context = new TestContext();
+			var expectedDeparture = context.App.InvokeGetExpectedDeparture(dailyWork);
+
+			context.ExpectEqual(expectedDeparture, new DateTime(2017, 06, 21, 18, 00, 00));
+			return context.TestPassed;
+		}
 	}
 
 	class TestContext : TestContextBase
@@ -303,9 +324,7 @@ namespace WorkTimeReboot.Tests
 		{
 		}
 
-		public void InvokeTick()
-		{
-			this.Tick();
-		}
+		public void InvokeTick() => this.Tick();
+		public DateTime InvokeGetExpectedDeparture(DailyWork todayWork) => this.GetExpectedDeparture(todayWork);
 	}
 }

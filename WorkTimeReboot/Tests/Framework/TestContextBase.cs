@@ -7,7 +7,7 @@ namespace WorkTimeReboot.Tests.Framework
 	{
 		public bool TestPassed { get; private set; } = true;
 
-		public void ExpectEqual(object a, object b, [CallerLineNumber] int lineNum = 0)
+		public void ExpectEqual<T>(T a, T b, [CallerLineNumber] int lineNum = 0)
 		{
 			if( !a.Equals(b) )
 			{

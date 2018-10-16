@@ -23,7 +23,7 @@ namespace WorkTimeReboot.Model
 					typeChar = "U";
 					break;
 			}
-			return $"{typeChar} {this.Time.TimeOfDay}";
+			return $"{typeChar} {this.Time}";
 		}
 	}
 }

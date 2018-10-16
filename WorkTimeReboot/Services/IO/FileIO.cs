@@ -26,7 +26,8 @@ namespace WorkTimeReboot.Services.IO
 				{
 					try
 					{
-						return JsonConvert.DeserializeObject<IEnumerable<WorkEvent>>(streamReader.ReadToEnd());
+						var json = streamReader.ReadToEnd();
+						return JsonConvert.DeserializeObject<IEnumerable<WorkEvent>>(json) ?? new WorkEvent[0];
 					}
 					catch( Exception )
 					{

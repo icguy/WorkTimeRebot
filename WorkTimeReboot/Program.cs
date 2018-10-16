@@ -14,11 +14,7 @@ namespace WorkTimeReboot
 		static void Main(string[] args)
 		{
 			if( args.FirstOrDefault() == "/test" )
-			{
 				TestRunner.RunTests(new WorkTimeAppTests());
-				Console.ReadLine();
-				return;
-			}
 
 			var config = new Model.Config
 			{

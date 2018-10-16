@@ -5,7 +5,7 @@ using WorkTimeReboot.Model;
 using WorkTimeReboot.Services.EventLogReader;
 using WorkTimeReboot.Services.IO;
 using WorkTimeReboot.Services.Timer;
-using WorkTimeReboot.Services.UserInput;
+using WorkTimeReboot.Services.UserIO;
 using WorkTimeReboot.Utils;
 
 namespace WorkTimeReboot
@@ -15,24 +15,24 @@ namespace WorkTimeReboot
 		private readonly ITimer _timer;
 		private readonly IFileIO _fileIO;
 		private readonly IEventLogReader _eventLogReader;
-		private readonly IUserInput _userInput;
+		private readonly IUserIO _userIO;
 
-		public WorkTimeApp(ITimer timer, IFileIO fileIO, IEventLogReader eventLogReader, IUserInput userInput)
+		public WorkTimeApp(ITimer timer, IFileIO fileIO, IEventLogReader eventLogReader, IUserIO UserIO)
 		{
 			_timer = timer;
 			_fileIO = fileIO;
 			_eventLogReader = eventLogReader;
-			_userInput = userInput;
+			_userIO = UserIO;
 		}
 
 		public void Run()
 		{
 			_timer.Tick += this.Tick;
 			_timer.Start();
-			Console.WriteLine("App started, type 'help' for available commands");
+			_userIO.WriteLine("App started, type 'help' for available commands");
 			while( true )
 			{
-				var command = _userInput.ReadLine();
+				var command = _userIO.ReadLine();
 				if( this.HandleUserCommand(command) )
 					break;
 			}
@@ -48,7 +48,7 @@ namespace WorkTimeReboot
 			}
 			catch( Exception ex )
 			{
-				Console.Error.WriteLine(ex);
+				_userIO.WriteError(ex);
 			}
 		}
 
@@ -70,26 +70,26 @@ namespace WorkTimeReboot
 						return true;
 					case "s":
 					case "status":
-						this.GetStatus().Print();
+						this.GetStatus().Print(_userIO);
 						break;
 					case "help":
 						this.ShowHelp();
 						break;
 					case "cls":
-						Console.Clear();
+						_userIO.Clear();
 						break;
 					case "tick":
 						this.Tick();
 						break;
 					default:
-						Console.WriteLine("Unknown command, type 'help' for available commands.");
+						_userIO.WriteLine("Unknown command, type 'help' for available commands.");
 						break;
 				}
 				return false;
 			}
 			catch( Exception ex )
 			{
-				Console.Error.WriteLine(ex);
+				_userIO.WriteError(ex);
 				return false;
 			}
 		}
@@ -131,7 +131,7 @@ namespace WorkTimeReboot
 
 		private void ShowHelp()
 		{
-			Console.WriteLine("soon..");
+			_userIO.WriteLine("soon..");
 		}
 	}
 }

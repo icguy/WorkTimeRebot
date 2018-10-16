@@ -5,7 +5,7 @@ using WorkTimeReboot.Model;
 using WorkTimeReboot.Services.EventLogReader;
 using WorkTimeReboot.Services.IO;
 using WorkTimeReboot.Services.Timer;
-using WorkTimeReboot.Services.UserInput;
+using WorkTimeReboot.Services.UserIO;
 using WorkTimeReboot.Tests.Framework;
 using WorkTimeReboot.Tests.Mocks;
 using WorkTimeReboot.Utils;
@@ -335,7 +335,7 @@ namespace WorkTimeReboot.Tests
 		public MockTimer Timer { get; private set; }
 		public MockFileIO FileIO { get; private set; }
 		public MockEventLogReader EventLogReader { get; private set; }
-		public MockUserInput UserInput { get; private set; }
+		public MockUserIO UserIO { get; private set; }
 		public TestWorkTimeApp App { get; private set; }
 
 		public TestContext()
@@ -343,19 +343,19 @@ namespace WorkTimeReboot.Tests
 			this.Timer = new MockTimer();
 			this.FileIO = new MockFileIO();
 			this.EventLogReader = new MockEventLogReader();
-			this.UserInput = new MockUserInput();
+			this.UserIO = new MockUserIO();
 			this.App = new TestWorkTimeApp(
 				this.Timer,
 				this.FileIO,
 				this.EventLogReader,
-				this.UserInput
+				this.UserIO
 			);
 		}
 	}
 
 	class TestWorkTimeApp : WorkTimeApp
 	{
-		public TestWorkTimeApp(ITimer timer, IFileIO fileIO, IEventLogReader eventLogReader, IUserInput userInput) : base(timer, fileIO, eventLogReader, userInput)
+		public TestWorkTimeApp(ITimer timer, IFileIO fileIO, IEventLogReader eventLogReader, IUserIO UserIO) : base(timer, fileIO, eventLogReader, UserIO)
 		{
 		}
 

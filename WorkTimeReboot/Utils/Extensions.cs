@@ -2,19 +2,20 @@
 using System.Diagnostics;
 using System.Linq;
 using WorkTimeReboot.Model;
+using WorkTimeReboot.Services.UserIO;
 
 namespace WorkTimeReboot.Utils
 {
 	public static class Extensions
 	{
-		public static void Print(this Status status)
+		public static void Print(this Status status, IUserIO userIO)
 		{
-			Console.WriteLine("total:");
-			Console.WriteLine(status.Total);
-			Console.WriteLine();
-			Console.WriteLine("today:");
-			Console.WriteLine(status.TodayWork);
-			Console.WriteLine($"expected departure at: {status.ExpectedDeparture}");
+			userIO.WriteLine("total:");
+			userIO.WriteLine(status.Total);
+			userIO.WriteLine();
+			userIO.WriteLine("today:");
+			userIO.WriteLine(status.TodayWork);
+			userIO.WriteLine($"expected departure at: {status.ExpectedDeparture}");
 		}
 
 		public static WorkEvent ToWorkEvent(this EventLogEntry entry)

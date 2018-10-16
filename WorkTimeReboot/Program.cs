@@ -3,7 +3,7 @@ using System.Linq;
 using WorkTimeReboot.Services.EventLogReader;
 using WorkTimeReboot.Services.IO;
 using WorkTimeReboot.Services.Timer;
-using WorkTimeReboot.Services.UserInput;
+using WorkTimeReboot.Services.UserIO;
 using WorkTimeReboot.Tests;
 using WorkTimeReboot.Tests.Framework;
 
@@ -25,13 +25,13 @@ namespace WorkTimeReboot
 			var timer = new Timer(config.TimerIntervalInSeconds * 1000);
 			var fileIO = new FileIO(config.FilePath);
 			var eventLogReader = new EventLogReader();
-			var userInput = new UserInput();
+			var UserIO = new UserIO();
 
 			new WorkTimeApp(
 				timer,
 				fileIO,
 				eventLogReader,
-				userInput
+				UserIO
 			).Run();
 		}
 	}

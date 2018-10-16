@@ -40,12 +40,13 @@ namespace WorkTimeReboot.Services.IO
 
 		public void WriteToFile(IEnumerable<WorkEvent> events)
 		{
+			var json = JsonConvert.SerializeObject(events, Formatting.Indented);
 			lock( _lock )
 			{
 				using( var fileStream = File.Open(_filePath, FileMode.Create, FileAccess.Write) )
 				using( var streamWriter = new StreamWriter(fileStream) )
 				{
-					streamWriter.WriteLine(JsonConvert.SerializeObject(events));
+					streamWriter.WriteLine(json);
 				}
 			}
 		}

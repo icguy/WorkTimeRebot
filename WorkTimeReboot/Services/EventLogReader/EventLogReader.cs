@@ -13,7 +13,7 @@ namespace WorkTimeReboot.Services.EventLogReader
 
 		public virtual IEnumerable<WorkEvent> GetWorkEvents()
 		{
-			var securityLog = GetSecurityLog();
+			var securityLog = this.GetSecurityLog();
 			return securityLog.Entries.Cast<EventLogEntry>()
 				.Where(e => EventIds.Contains(e.InstanceId))
 				.Select(e => e.ToWorkEvent());

@@ -1,9 +1,12 @@
 ﻿using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace WorkTimeReboot.Model
 {
 	public class WorkEvent
 	{
+		[JsonConverter(typeof(StringEnumConverter))]
 		public EventType Type = EventType.Unknown;
 		public DateTime Time = DateTime.MinValue;
 

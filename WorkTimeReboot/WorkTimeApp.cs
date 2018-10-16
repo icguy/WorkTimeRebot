@@ -41,8 +41,15 @@ namespace WorkTimeReboot
 
 		protected void Tick()
 		{
-			var workEvents = this.GetEvents();
-			_fileIO.WriteToFile(workEvents);
+			try
+			{
+				var workEvents = this.GetEvents();
+				_fileIO.WriteToFile(workEvents);
+			}
+			catch( Exception ex )
+			{
+				Console.Error.WriteLine(ex);
+			}
 		}
 
 		protected WorkTimes Calculate()
@@ -68,14 +75,21 @@ namespace WorkTimeReboot
 					case "help":
 						this.ShowHelp();
 						break;
+					case "cls":
+						Console.Clear();
+						break;
+					case "tick":
+						this.Tick();
+						break;
 					default:
 						Console.WriteLine("Unknown command, type 'help' for available commands.");
 						break;
 				}
 				return false;
 			}
-			catch( Exception )
+			catch( Exception ex )
 			{
+				Console.Error.WriteLine(ex);
 				return false;
 			}
 		}

@@ -94,7 +94,6 @@ namespace WorkTimeReboot
 			}
 		}
 
-#error todo tests
 		protected Status GetStatus()
 		{
 			var status = new Status();
@@ -109,7 +108,6 @@ namespace WorkTimeReboot
 			workEventsToday.Add(new WorkEvent() { Time = nowSeconds, Type = EventType.Departure });
 			var todayWork = WorkTimesUtils.CreateDailyWork(workEventsToday, 8);
 			var expectedDeparture = this.GetExpectedDeparture(todayWork);
-
 
 			status.TodayWork = todayWork;
 			status.ExpectedDeparture = expectedDeparture;

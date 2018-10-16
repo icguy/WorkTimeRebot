@@ -15,7 +15,7 @@ namespace WorkTimeReboot.Tests
 	class WorkTimeAppTests
 	{
 		[Test]
-		private bool Test1_Tick_MergesFine()
+		private bool Tick_MergesFine()
 		{
 			var context = new TestContext();
 
@@ -55,7 +55,7 @@ namespace WorkTimeReboot.Tests
 		}
 
 		[Test]
-		private bool Test2_Tick_CleansUpFine()
+		private bool Tick_CleansUpFine()
 		{
 			var context = new TestContext();
 
@@ -293,6 +293,41 @@ namespace WorkTimeReboot.Tests
 			context.ExpectEqual(expectedDeparture, new DateTime(2017, 06, 21, 18, 00, 00));
 			return context.TestPassed;
 		}
+		[Test]
+		bool GetStatus_SomeEvents_CalculatesCorrectly()
+		{
+			var context = new TestContext();
+
+			context.EventLogReader.WorkEvents = new WorkEvent[]
+			{
+				new WorkEvent() {Time = TestHelper.GetDateHours(0), Type = EventType.Arrival },
+				new WorkEvent() {Time = TestHelper.GetDateHours(1), Type = EventType.Arrival },
+				new WorkEvent() {Time = TestHelper.GetDateHours(2), Type = EventType.Arrival },
+				new WorkEvent() {Time = TestHelper.GetDateHours(3), Type = EventType.Arrival },
+				new WorkEvent() {Time = TestHelper.GetDateHours(4), Type = EventType.Departure },
+				new WorkEvent() {Time = TestHelper.GetDateHours(5), Type = EventType.Departure },
+				new WorkEvent() {Time = TestHelper.GetDateHours(6), Type = EventType.Departure }
+			};
+
+			context.FileIO.OnReadFromFile = () => new WorkEvent[]
+			{
+				new WorkEvent() {Time = TestHelper.GetDateHours(-24 + 0), Type = EventType.Arrival },
+				new WorkEvent() {Time = TestHelper.GetDateHours(-24 + 1), Type = EventType.Arrival },
+				new WorkEvent() {Time = TestHelper.GetDateHours(-24 + 2), Type = EventType.Arrival },
+				new WorkEvent() {Time = TestHelper.GetDateHours(-24 + 3), Type = EventType.Arrival },
+				new WorkEvent() {Time = TestHelper.GetDateHours(-24 + 4), Type = EventType.Departure },
+				new WorkEvent() {Time = TestHelper.GetDateHours(-24 + 5), Type = EventType.Departure },
+				new WorkEvent() {Time = TestHelper.GetDateHours(-24 + 6), Type = EventType.Departure }
+			};
+
+			var status = context.App.InvokeGetStatus();
+
+			context.ExpectEqual(status.Total, TimeSpan.FromHours(-4));
+			context.ExpectEqual(status.ExpectedDeparture, TestHelper.GetDateHours(8));
+			context.ExpectEqual(status.TodayWork.Balance, TimeSpan.FromHours(-4));
+
+			return context.TestPassed;
+		}
 	}
 
 	class TestContext : TestContextBase
@@ -326,5 +361,6 @@ namespace WorkTimeReboot.Tests
 
 		public void InvokeTick() => this.Tick();
 		public DateTime InvokeGetExpectedDeparture(DailyWork todayWork) => this.GetExpectedDeparture(todayWork);
+		public Status InvokeGetStatus() => this.GetStatus();
 	}
 }

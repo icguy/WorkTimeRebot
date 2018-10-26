@@ -19,26 +19,40 @@ namespace WorkTimeReboot.Tests.Framework
 				}
 				catch( Exception ex )
 				{
-					Console.WriteLine($"test threw exception: {ex}");
+					WriteLineError($"test threw exception: {ex}");
 					currentTestPassed = false;
 				}
 
 				if( !currentTestPassed )
 				{
-					Console.WriteLine($"=| FAILED {test.Name}");
+					WriteLineError($"=| FAILED {test.Name}");
 					allTestsPassed = false;
 				}
 				else
 				{
-					Console.WriteLine($"=| OK     {test.Name}");
+					WriteLineSuccess($"=| OK     {test.Name}");
 				}
 			}
 
 			Console.WriteLine();
 			if( !allTestsPassed )
-				Console.WriteLine("====== TESTS FAILED ======");
+				WriteLineError("====== TESTS FAILED ======");
 			else
-				Console.WriteLine("====== TESTS PASSED ======");
+				WriteLineSuccess("====== TESTS PASSED ======");
+		}
+
+		private static void WriteLineSuccess(string text)
+		{
+			Console.ForegroundColor = ConsoleColor.Green;
+			Console.WriteLine(text);
+			Console.ForegroundColor = ConsoleColor.Gray;
+		}
+
+		private static void WriteLineError(string text)
+		{
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine(text);
+			Console.ForegroundColor = ConsoleColor.Gray;
 		}
 	}
 }

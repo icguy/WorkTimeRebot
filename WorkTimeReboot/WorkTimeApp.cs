@@ -45,7 +45,7 @@ namespace WorkTimeReboot
 
 		protected void Tick()
 		{
-			_userIO.WriteLine("tick start " + _clock.Now);
+			_userIO.WriteLine("tick start");
 			try
 			{
 				var workEvents = this.GetEvents(false);
@@ -55,7 +55,7 @@ namespace WorkTimeReboot
 			{
 				_userIO.WriteError(ex);
 			}
-			_userIO.WriteLine("tick end" + _clock.Now);
+			_userIO.WriteLine("tick end");
 		}
 
 		protected bool HandleUserCommand(string command)
@@ -73,7 +73,11 @@ namespace WorkTimeReboot
 							return true;
 						case "s":
 						case "status":
-							this.GetStatus().Print(_userIO);
+							bool quick = tokens.Contains("--quick") || tokens.Contains("-q");
+							if( quick )
+								this.GetQuickStatus().Print(_userIO);
+							else
+								this.GetStatus().Print(_userIO);
 							break;
 						case "help":
 							this.ShowHelp();
@@ -97,6 +101,7 @@ namespace WorkTimeReboot
 			return false;
 		}
 
+		//todo test this
 		protected Status GetStatus()
 		{
 			var status = new Status();
@@ -116,6 +121,17 @@ namespace WorkTimeReboot
 			return status;
 		}
 
+		//todo test this
+		protected QuickStatus GetQuickStatus()
+		{
+			var events = _fileIO.ReadFromFile().Where(e => e.Time.Date != _clock.Now.Date);
+			var workTime = WorkTimesUtils.CreateWorkTimes(events);
+			return new QuickStatus
+			{
+				Total = workTime.Balance
+			};
+		}
+
 		protected DateTime GetExpectedDeparture(DailyWork todayWork)
 		{
 			var lastSignin = todayWork.Events.OrderByDescending(e => e.Time).FirstOrDefault(/*e => e.Type == EventType.Arrival*/);
@@ -123,15 +139,17 @@ namespace WorkTimeReboot
 			return expectedDeparture;
 		}
 
-		private IEnumerable<WorkEvent> GetEvents(bool enableLogging = true)
+		//todo test this
+		protected IEnumerable<WorkEvent> GetEvents(bool enableLogging = true)
 		{
-			if( enableLogging )
-				_userIO.WriteLine("gathering events...");
+			IEnumerable<WorkEvent> workEvents;
+			if( enableLogging ) _userIO.WriteLine("gathering events...");
+
 			var newWorkEvents = _eventLogReader.GetWorkEvents();
 			var eventsFromFile = _fileIO.ReadFromFile();
-			var workEvents = EventStreamUtils.CleanUpStream(newWorkEvents.Concat(eventsFromFile));
-			if( enableLogging )
-				_userIO.WriteLine("gathered events");
+			workEvents = EventStreamUtils.CleanUpStream(newWorkEvents.Concat(eventsFromFile));
+
+			if( enableLogging ) _userIO.WriteLine("gathered events");
 			return workEvents;
 		}
 

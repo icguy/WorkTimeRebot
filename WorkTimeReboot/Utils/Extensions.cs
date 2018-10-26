@@ -10,12 +10,19 @@ namespace WorkTimeReboot.Utils
 	{
 		public static void Print(this Status status, IUserIO userIO)
 		{
+			userIO.WriteLine();
 			userIO.WriteLine("total:");
 			userIO.WriteLine(status.Total);
-			userIO.WriteLine();
 			userIO.WriteLine("today:");
 			userIO.WriteLine(status.TodayWork);
 			userIO.WriteLine($"expected departure at: {status.ExpectedDeparture}");
+		}
+
+		public static void Print(this QuickStatus status, IUserIO userIO)
+		{
+			userIO.WriteLine();
+			userIO.WriteLine("total:");
+			userIO.WriteLine(status.Total);
 		}
 
 		public static WorkEvent ToWorkEvent(this EventLogEntry entry)

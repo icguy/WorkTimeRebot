@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using WorkTimeReboot.Model;
+using WorkTimeReboot.Services.Clock;
 using WorkTimeReboot.Services.EventLogReader;
 using WorkTimeReboot.Services.IO;
 using WorkTimeReboot.Services.Timer;
@@ -16,13 +17,15 @@ namespace WorkTimeReboot
 		private readonly IFileIO _fileIO;
 		private readonly IEventLogReader _eventLogReader;
 		private readonly IUserIO _userIO;
+		private readonly IClock _clock;
 
-		public WorkTimeApp(ITimer timer, IFileIO fileIO, IEventLogReader eventLogReader, IUserIO UserIO)
+		public WorkTimeApp(ITimer timer, IFileIO fileIO, IEventLogReader eventLogReader, IUserIO UserIO, IClock clock)
 		{
 			_timer = timer;
 			_fileIO = fileIO;
 			_eventLogReader = eventLogReader;
 			_userIO = UserIO;
+			_clock = clock;
 		}
 
 		public void Run()
@@ -50,12 +53,6 @@ namespace WorkTimeReboot
 			{
 				_userIO.WriteError(ex);
 			}
-		}
-
-		protected WorkTimes Calculate()
-		{
-			var events = this.GetEvents();
-			return WorkTimesUtils.CreateWorkTimes(events);
 		}
 
 		protected bool HandleUserCommand(string command)
@@ -97,19 +94,18 @@ namespace WorkTimeReboot
 		protected Status GetStatus()
 		{
 			var status = new Status();
-			var workTime = this.Calculate();
+			var now = _clock.Now;
+			var nowSeconds = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, now.Kind);
+			var events = this.GetEvents().ToList();
+			events.Add(new WorkEvent() { Time = nowSeconds, Type = EventType.Departure });
+			var workTime = WorkTimesUtils.CreateWorkTimes(events);
 
 			var today = workTime.DailyWorks.OrderByDescending(dw => dw.Events.FirstOrDefault().Time).FirstOrDefault();
 			status.Total = workTime.Balance - today.Balance;
 
-			var now = DateTime.Now;
-			var nowSeconds = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, now.Kind);
-			var workEventsToday = today.Events.ToList();
-			workEventsToday.Add(new WorkEvent() { Time = nowSeconds, Type = EventType.Departure });
-			var todayWork = WorkTimesUtils.CreateDailyWork(workEventsToday, 8);
-			var expectedDeparture = this.GetExpectedDeparture(todayWork);
+			var expectedDeparture = this.GetExpectedDeparture(today);
 
-			status.TodayWork = todayWork;
+			status.TodayWork = today;
 			status.ExpectedDeparture = expectedDeparture;
 			return status;
 		}

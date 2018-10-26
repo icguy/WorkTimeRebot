@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using WorkTimeReboot.Model;
+using WorkTimeReboot.Services.Clock;
 using WorkTimeReboot.Services.EventLogReader;
 using WorkTimeReboot.Services.IO;
 using WorkTimeReboot.Services.Timer;
@@ -336,6 +337,7 @@ namespace WorkTimeReboot.Tests
 		public MockFileIO FileIO { get; private set; }
 		public MockEventLogReader EventLogReader { get; private set; }
 		public MockUserIO UserIO { get; private set; }
+		public MockClock Clock { get; private set; }
 		public TestWorkTimeApp App { get; private set; }
 
 		public TestContext()
@@ -344,18 +346,21 @@ namespace WorkTimeReboot.Tests
 			this.FileIO = new MockFileIO();
 			this.EventLogReader = new MockEventLogReader();
 			this.UserIO = new MockUserIO();
+			this.Clock = new MockClock();
+
 			this.App = new TestWorkTimeApp(
 				this.Timer,
 				this.FileIO,
 				this.EventLogReader,
-				this.UserIO
+				this.UserIO,
+				this.Clock
 			);
 		}
 	}
 
 	class TestWorkTimeApp : WorkTimeApp
 	{
-		public TestWorkTimeApp(ITimer timer, IFileIO fileIO, IEventLogReader eventLogReader, IUserIO UserIO) : base(timer, fileIO, eventLogReader, UserIO)
+		public TestWorkTimeApp(ITimer timer, IFileIO fileIO, IEventLogReader eventLogReader, IUserIO userIO, IClock clock) : base(timer, fileIO, eventLogReader, userIO, clock)
 		{
 		}
 

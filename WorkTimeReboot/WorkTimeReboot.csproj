@@ -48,6 +48,8 @@
     <Compile Include="Model\DailyWork.cs" />
     <Compile Include="Model\Status.cs" />
     <Compile Include="Model\WorkTimes.cs" />
+    <Compile Include="Services\Clock\AppClock.cs" />
+    <Compile Include="Services\Clock\IClock.cs" />
     <Compile Include="Services\EventLogReader\EventLogReader.cs" />
     <Compile Include="Services\EventLogReader\IEventLogReader.cs" />
     <Compile Include="Services\IO\FileIO.cs" />
@@ -59,6 +61,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\UserIO\IUserIO.cs" />
     <Compile Include="Services\UserIO\UserIO.cs" />
+    <Compile Include="Tests\Mocks\MockClock.cs" />
     <Compile Include="Tests\Mocks\MockEventLogReader.cs" />
     <Compile Include="Tests\Mocks\MockFileIO.cs" />
     <Compile Include="Tests\Mocks\MockTimer.cs" />

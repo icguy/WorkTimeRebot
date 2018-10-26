@@ -14,13 +14,11 @@ namespace WorkTimeReboot.Utils
 				Balance = TimeSpan.Zero,
 				DailyWorks = new DailyWork[0]
 			};
-			var lastWorkTime = workTimes.DailyWorks.LastOrDefault()?.Events?.LastOrDefault()?.Time ?? DateTime.MinValue;
 			var filteredEvents = events
 				.OrderBy(e => e.Time)
 				.ToList();
 
 			var newDailyWorks = new List<DailyWork>();
-			newDailyWorks.AddRange(workTimes.DailyWorks);
 
 			while( filteredEvents.Count != 0 )
 			{

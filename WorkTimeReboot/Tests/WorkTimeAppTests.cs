@@ -307,8 +307,10 @@ namespace WorkTimeReboot.Tests
 				new WorkEvent() {Time = TestHelper.GetDateHours(3), Type = EventType.Arrival },
 				new WorkEvent() {Time = TestHelper.GetDateHours(4), Type = EventType.Departure },
 				new WorkEvent() {Time = TestHelper.GetDateHours(5), Type = EventType.Departure },
-				new WorkEvent() {Time = TestHelper.GetDateHours(6), Type = EventType.Departure }
+				new WorkEvent() {Time = TestHelper.GetDateHours(6), Type = EventType.Departure },
+				new WorkEvent() {Time = TestHelper.GetDateHours(8), Type = EventType.Arrival }
 			};
+			context.Clock.Now = TestHelper.GetDateHours(9);
 
 			context.FileIO.OnReadFromFile = () => new WorkEvent[]
 			{
@@ -324,8 +326,8 @@ namespace WorkTimeReboot.Tests
 			var status = context.App.InvokeGetStatus();
 
 			context.ExpectEqual(status.Total, TimeSpan.FromHours(-4));
-			context.ExpectEqual(status.ExpectedDeparture, TestHelper.GetDateHours(8));
-			context.ExpectEqual(status.TodayWork.Balance, TimeSpan.FromHours(-4));
+			context.ExpectEqual(status.ExpectedDeparture, TestHelper.GetDateHours(12));
+			context.ExpectEqual(status.TodayWork.Balance, TimeSpan.FromHours(-3));
 
 			return context.TestPassed;
 		}

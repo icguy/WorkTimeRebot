@@ -12,6 +12,10 @@ using WorkTimeReboot.Utils;
 
 namespace WorkTimeReboot
 {
+	class QuitCommandException : Exception
+	{
+	}
+
 	class WorkTimeApp
 	{
 		private readonly ITimer _timer;
@@ -88,10 +92,16 @@ namespace WorkTimeReboot
 						case "tick":
 							this.Tick();
 							break;
+						case "edit":
+							this.EditDay();
+							break;
 						default:
 							_userIO.WriteLine("Unknown command, type 'help' for available commands.");
 							break;
 					}
+				}
+				catch( QuitCommandException )
+				{
 				}
 				catch( Exception ex )
 				{
@@ -99,6 +109,59 @@ namespace WorkTimeReboot
 				}
 			}
 			return false;
+		}
+
+		//todo test this
+		protected void EditDay()
+		{
+			_userIO.WriteLine("type 'q' to quit command");
+			_userIO.WriteLine("enter a date");
+			DateTime date;
+			while( true )
+			{
+				var input = this.GetUserInputOrQuit();
+				if( DateTime.TryParse(input, out date) )
+					break;
+			}
+			var events = _fileIO.ReadFromFile().Where(e => e.Time.Date == date.Date).ToList();
+
+			if( events.Count == 0 )
+			{
+				_userIO.WriteLine("No events on the specified date.");
+				return;
+			}
+
+			var ignoredEvents = new List<WorkEvent>();
+			foreach( var e in events )
+			{
+				while( true )
+				{
+					_userIO.WriteLine(e.ToString());
+					_userIO.WriteLine("Keep event? (y/n)");
+					string resp = this.GetUserInputOrQuit();
+					if( resp.ToLower() == "y" )
+					{
+						ignoredEvents.Add(e);
+						break;
+					}
+					else if( resp.ToLower() == "n" )
+					{
+						break;
+					}
+				}
+			}
+
+			int hoursToWork;
+			while( true )
+			{
+				_userIO.WriteLine("Hours to work today: ");
+				var hoursString = this.GetUserInputOrQuit();
+				if( int.TryParse(hoursString, out hoursToWork) )
+					break;
+				_userIO.WriteLine("Please write a number.");
+			}
+
+#error todo finish this
 		}
 
 		//todo test this
@@ -156,6 +219,14 @@ namespace WorkTimeReboot
 		private void ShowHelp()
 		{
 			_userIO.WriteLine("soon..");
+		}
+
+		private string GetUserInputOrQuit()
+		{
+			var userInput = _userIO.ReadLine();
+			if( userInput.Trim().ToLower() == "q" )
+				throw new QuitCommandException();
+			return userInput;
 		}
 	}
 }

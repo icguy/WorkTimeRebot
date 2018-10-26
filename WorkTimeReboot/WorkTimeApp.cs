@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using WorkTimeReboot.Model;
 using WorkTimeReboot.Services.Clock;
 using WorkTimeReboot.Services.EventLogReader;
@@ -44,6 +45,7 @@ namespace WorkTimeReboot
 
 		protected void Tick()
 		{
+			_userIO.WriteLine("tick start " + _clock.Now);
 			try
 			{
 				var workEvents = this.GetEvents();
@@ -53,6 +55,7 @@ namespace WorkTimeReboot
 			{
 				_userIO.WriteError(ex);
 			}
+			_userIO.WriteLine("tick end" + _clock.Now);
 		}
 
 		protected bool HandleUserCommand(string command)

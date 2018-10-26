@@ -19,7 +19,7 @@ namespace WorkTimeReboot
 
 			var config = new Model.Config
 			{
-				TimerIntervalInSeconds = 20,
+				TimerIntervalInSeconds = 120,
 				FilePath = "times.json"
 			};
 

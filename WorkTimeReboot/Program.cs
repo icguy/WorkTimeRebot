@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using WorkTimeReboot.Model;
 using WorkTimeReboot.Services.Clock;
 using WorkTimeReboot.Services.EventLogReader;
 using WorkTimeReboot.Services.IO;
@@ -24,7 +26,7 @@ namespace WorkTimeReboot
 			};
 
 			var timer = new Timer(config.TimerIntervalInSeconds * 1000);
-			var fileIO = new FileIO(config.FilePath);
+			var fileIO = new FileIO<IEnumerable<WorkEvent>>(config.FilePath);
 			var eventLogReader = new EventLogReader();
 			var userIO = new UserIO();
 			var clock = new AppClock();

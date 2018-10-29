@@ -19,12 +19,12 @@ namespace WorkTimeReboot
 	class WorkTimeApp
 	{
 		private readonly ITimer _timer;
-		private readonly IFileIO _fileIO;
+		private readonly IFileIO<IEnumerable<WorkEvent>> _fileIO;
 		private readonly IEventLogReader _eventLogReader;
 		private readonly IUserIO _userIO;
 		private readonly IClock _clock;
 
-		public WorkTimeApp(ITimer timer, IFileIO fileIO, IEventLogReader eventLogReader, IUserIO UserIO, IClock clock)
+		public WorkTimeApp(ITimer timer, IFileIO<IEnumerable<WorkEvent>> fileIO, IEventLogReader eventLogReader, IUserIO UserIO, IClock clock)
 		{
 			_timer = timer;
 			_fileIO = fileIO;
@@ -123,9 +123,9 @@ namespace WorkTimeReboot
 				if( DateTime.TryParse(input, out date) )
 					break;
 			}
-			var events = _fileIO.ReadFromFile().Where(e => e.Time.Date == date.Date).ToList();
+			var events = _fileIO.ReadFromFile()?.Where(e => e.Time.Date == date.Date)?.ToList();
 
-			if( events.Count == 0 )
+			if( events == null || events.Count == 0 )
 			{
 				_userIO.WriteLine("No events on the specified date.");
 				return;
@@ -161,7 +161,7 @@ namespace WorkTimeReboot
 				_userIO.WriteLine("Please write a number.");
 			}
 
-#error todo finish this
+			//#error todo finish this
 		}
 
 		//todo test this
@@ -187,7 +187,7 @@ namespace WorkTimeReboot
 		//todo test this
 		protected QuickStatus GetQuickStatus()
 		{
-			var events = _fileIO.ReadFromFile().Where(e => e.Time.Date != _clock.Now.Date);
+			var events = _fileIO.ReadFromFile()?.Where(e => e.Time.Date != _clock.Now.Date) ?? new WorkEvent[0];
 			var workTime = WorkTimesUtils.CreateWorkTimes(events);
 			return new QuickStatus
 			{
@@ -209,7 +209,7 @@ namespace WorkTimeReboot
 			if( enableLogging ) _userIO.WriteLine("gathering events...");
 
 			var newWorkEvents = _eventLogReader.GetWorkEvents();
-			var eventsFromFile = _fileIO.ReadFromFile();
+			var eventsFromFile = _fileIO.ReadFromFile() ?? new WorkEvent[0];
 			workEvents = EventStreamUtils.CleanUpStream(newWorkEvents.Concat(eventsFromFile));
 
 			if( enableLogging ) _userIO.WriteLine("gathered events");

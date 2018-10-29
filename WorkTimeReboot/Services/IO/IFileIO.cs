@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using WorkTimeReboot.Model;
-
-namespace WorkTimeReboot.Services.IO
+﻿namespace WorkTimeReboot.Services.IO
 {
-	public interface IFileIO
+	public interface IFileIO<T>
 	{
-		IEnumerable<WorkEvent> ReadFromFile();
-		void WriteToFile(IEnumerable<WorkEvent> events);
+		T ReadFromFile();
+		void WriteToFile(T events);
 	}
 }

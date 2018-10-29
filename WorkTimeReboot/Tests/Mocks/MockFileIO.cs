@@ -5,7 +5,7 @@ using WorkTimeReboot.Services.IO;
 
 namespace WorkTimeReboot.Tests.Mocks
 {
-	class MockFileIO : IFileIO
+	class MockFileIO : IFileIO<IEnumerable<WorkEvent>>
 	{
 		public Action<IEnumerable<WorkEvent>> OnWriteToFile { get; set; }
 		public Func<IEnumerable<WorkEvent>> OnReadFromFile { get; set; }
@@ -17,8 +17,7 @@ namespace WorkTimeReboot.Tests.Mocks
 
 		public void WriteToFile(IEnumerable<WorkEvent> events)
 		{
-			if( this.OnWriteToFile != null )
-				this.OnWriteToFile(events);
+			this.OnWriteToFile?.Invoke(events);
 		}
 	}
 }

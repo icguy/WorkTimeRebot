@@ -362,7 +362,7 @@ namespace WorkTimeReboot.Tests
 
 	class TestWorkTimeApp : WorkTimeApp
 	{
-		public TestWorkTimeApp(ITimer timer, IFileIO fileIO, IEventLogReader eventLogReader, IUserIO userIO, IClock clock) : base(timer, fileIO, eventLogReader, userIO, clock)
+		public TestWorkTimeApp(ITimer timer, IFileIO<IEnumerable<WorkEvent>> fileIO, IEventLogReader eventLogReader, IUserIO userIO, IClock clock) : base(timer, fileIO, eventLogReader, userIO, clock)
 		{
 		}
 

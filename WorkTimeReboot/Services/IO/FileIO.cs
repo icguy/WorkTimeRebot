@@ -6,7 +6,7 @@ using WorkTimeReboot.Model;
 
 namespace WorkTimeReboot.Services.IO
 {
-	public class FileIO : IFileIO
+	public class FileIO<T> : IFileIO<T>
 	{
 		private readonly string _filePath;
 		private readonly object _lock;
@@ -17,7 +17,7 @@ namespace WorkTimeReboot.Services.IO
 			_lock = new object();
 		}
 
-		public IEnumerable<WorkEvent> ReadFromFile()
+		public T ReadFromFile()
 		{
 			lock( _lock )
 			{
@@ -27,20 +27,20 @@ namespace WorkTimeReboot.Services.IO
 					try
 					{
 						var json = streamReader.ReadToEnd();
-						return JsonConvert.DeserializeObject<IEnumerable<WorkEvent>>(json) ?? new WorkEvent[0];
+						return JsonConvert.DeserializeObject<T>(json);
 					}
 					catch( Exception )
 					{
 					}
 
-					return new WorkEvent[0];
+					return default(T);
 				}
 			}
 		}
 
-		public void WriteToFile(IEnumerable<WorkEvent> events)
+		public void WriteToFile(T data)
 		{
-			var json = JsonConvert.SerializeObject(events, Formatting.Indented);
+			var json = JsonConvert.SerializeObject(data, Formatting.Indented);
 			lock( _lock )
 			{
 				using( var fileStream = File.Open(_filePath, FileMode.Create, FileAccess.Write) )

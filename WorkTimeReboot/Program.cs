@@ -22,7 +22,8 @@ namespace WorkTimeReboot
 			var config = new Model.Config
 			{
 				TimerIntervalInSeconds = 120,
-				FilePath = "times.json"
+				FilePath = "times.json",
+				ModifiersFilePath = "modifiers.json"
 			};
 
 			var timer = new Timer(config.TimerIntervalInSeconds * 1000);
@@ -30,13 +31,15 @@ namespace WorkTimeReboot
 			var eventLogReader = new EventLogReader();
 			var userIO = new UserIO();
 			var clock = new AppClock();
+			var modifiersFileIO = new FileIO<WorkModifiers>(config.ModifiersFilePath);
 
 			new WorkTimeApp(
 				timer,
 				fileIO,
 				eventLogReader,
 				userIO,
-				clock
+				clock,
+				modifiersFileIO
 			).Run();
 		}
 	}

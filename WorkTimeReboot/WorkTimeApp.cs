@@ -23,14 +23,23 @@ namespace WorkTimeReboot
 		private readonly IEventLogReader _eventLogReader;
 		private readonly IUserIO _userIO;
 		private readonly IClock _clock;
+		private readonly IFileIO<WorkModifiers> _modifiersFileIO;
 
-		public WorkTimeApp(ITimer timer, IFileIO<IEnumerable<WorkEvent>> fileIO, IEventLogReader eventLogReader, IUserIO UserIO, IClock clock)
+		public WorkTimeApp(
+			ITimer timer,
+			IFileIO<IEnumerable<WorkEvent>> fileIO,
+			IEventLogReader eventLogReader,
+			IUserIO UserIO,
+			IClock clock,
+			IFileIO<WorkModifiers> modifiersFileIO
+			)
 		{
 			_timer = timer;
 			_fileIO = fileIO;
 			_eventLogReader = eventLogReader;
 			_userIO = UserIO;
 			_clock = clock;
+			_modifiersFileIO = modifiersFileIO;
 		}
 
 		public void Run()
@@ -78,6 +87,7 @@ namespace WorkTimeReboot
 						case "s":
 						case "status":
 							bool quick = tokens.Contains("--quick") || tokens.Contains("-q");
+
 							if( quick )
 								this.GetQuickStatus().Print(_userIO);
 							else
@@ -131,6 +141,13 @@ namespace WorkTimeReboot
 				return;
 			}
 
+			_userIO.WriteLine($" ============== EDITING DAY ({date.ToShortDateString()}) ==============");
+			foreach( var e in events )
+			{
+				_userIO.WriteLine(e);
+			}
+			_userIO.WriteLine();
+
 			var ignoredEvents = new List<WorkEvent>();
 			foreach( var e in events )
 			{
@@ -141,11 +158,11 @@ namespace WorkTimeReboot
 					string resp = this.GetUserInputOrQuit();
 					if( resp.ToLower() == "y" )
 					{
-						ignoredEvents.Add(e);
 						break;
 					}
 					else if( resp.ToLower() == "n" )
 					{
+						ignoredEvents.Add(e);
 						break;
 					}
 				}
@@ -161,7 +178,24 @@ namespace WorkTimeReboot
 				_userIO.WriteLine("Please write a number.");
 			}
 
-			//#error todo finish this
+			var modifiers = _modifiersFileIO.ReadFromFile() ?? new WorkModifiers
+			{
+				HoursModifiers = new List<HoursToWorkModifier>(),
+				IgnoredEventsModifiers = new List<IgnoredEventModifier>()
+			};
+
+			var hoursModifiers = modifiers.HoursModifiers.Where(hm => hm.Date.Date != date.Date).ToList();
+			hoursModifiers.Add(new HoursToWorkModifier { Date = date.Date, Hours = hoursToWork });
+
+			var ignoredEventsModifiers = modifiers.IgnoredEventsModifiers.Where(ie => ie.Date.Date != date.Date).ToList();
+			ignoredEventsModifiers.AddRange(ignoredEvents.Select(ie => new IgnoredEventModifier { Date = ie.Time }));
+
+			_modifiersFileIO.WriteToFile(new WorkModifiers
+			{
+				HoursModifiers = hoursModifiers,
+				IgnoredEventsModifiers = ignoredEventsModifiers
+			});
+			_userIO.WriteLine("editing finished.");
 		}
 
 		//todo test this

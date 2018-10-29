@@ -336,33 +336,43 @@ namespace WorkTimeReboot.Tests
 	class TestContext : TestContextBase
 	{
 		public MockTimer Timer { get; private set; }
-		public MockFileIO FileIO { get; private set; }
+		public MockFileIO<IEnumerable<WorkEvent>> FileIO { get; private set; }
 		public MockEventLogReader EventLogReader { get; private set; }
 		public MockUserIO UserIO { get; private set; }
 		public MockClock Clock { get; private set; }
 		public TestWorkTimeApp App { get; private set; }
+		public MockFileIO<WorkModifiers> ModifiersFileIO { get; private set; }
 
 		public TestContext()
 		{
 			this.Timer = new MockTimer();
-			this.FileIO = new MockFileIO();
+			this.FileIO = new MockFileIO<IEnumerable<WorkEvent>>();
 			this.EventLogReader = new MockEventLogReader();
 			this.UserIO = new MockUserIO();
 			this.Clock = new MockClock();
+			this.ModifiersFileIO = new MockFileIO<WorkModifiers>();
 
 			this.App = new TestWorkTimeApp(
 				this.Timer,
 				this.FileIO,
 				this.EventLogReader,
 				this.UserIO,
-				this.Clock
+				this.Clock,
+				this.ModifiersFileIO
 			);
 		}
 	}
 
 	class TestWorkTimeApp : WorkTimeApp
 	{
-		public TestWorkTimeApp(ITimer timer, IFileIO<IEnumerable<WorkEvent>> fileIO, IEventLogReader eventLogReader, IUserIO userIO, IClock clock) : base(timer, fileIO, eventLogReader, userIO, clock)
+		public TestWorkTimeApp(
+			ITimer timer,
+			IFileIO<IEnumerable<WorkEvent>> fileIO,
+			IEventLogReader eventLogReader,
+			IUserIO userIO,
+			IClock clock,
+			IFileIO<WorkModifiers> modifiersFileIO
+			) : base(timer, fileIO, eventLogReader, userIO, clock, modifiersFileIO)
 		{
 		}
 

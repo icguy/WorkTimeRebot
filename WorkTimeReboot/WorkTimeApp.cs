@@ -93,6 +93,15 @@ namespace WorkTimeReboot
 							else
 								this.GetStatus().Print(_userIO);
 							break;
+						case "log":
+							DateTime? dateArg = null;
+							try
+							{
+								dateArg = DateTime.Parse(tokens[1]);
+							}
+							catch( Exception ) { }
+							this.PrintLog(dateArg);
+							break;
 						case "help":
 							this.ShowHelp();
 							break;
@@ -119,6 +128,30 @@ namespace WorkTimeReboot
 				}
 			}
 			return false;
+		}
+
+		protected void PrintLog(DateTime? dateArg = null)
+		{
+			var events = this.ReadEventsFromFile().Where(e => e.Time.Date != _clock.Now.Date);
+			var workTime = WorkTimesUtils.CreateWorkTimes(events);
+			var modifiers = this.ReadModifiersFromFile();
+			workTime.ApplyModifiers(modifiers);
+			if( dateArg == null )
+			{
+				foreach( var dw in workTime.DailyWorks )
+				{
+					var padding = dw.Balance.TotalMinutes > 0 ? " " : "";
+					_userIO.WriteLine($"{dw.Events.First().Time.ToShortDateString()}: {padding}{dw.Balance}");
+				}
+			}
+			else
+			{
+				var work = workTime.DailyWorks.FirstOrDefault(dw => dw.Events.First().Time.Date == dateArg.Value.Date);
+				if( work != null )
+					_userIO.WriteLine(work);
+				else
+					_userIO.WriteLine("date not found");
+			}
 		}
 
 		//todo test this

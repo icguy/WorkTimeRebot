@@ -133,9 +133,9 @@ namespace WorkTimeReboot
 				if( DateTime.TryParse(input, out date) )
 					break;
 			}
-			var events = _fileIO.ReadFromFile()?.Where(e => e.Time.Date == date.Date)?.ToList();
+			var events = this.ReadEventsFromFile().Where(e => e.Time.Date == date.Date).ToList();
 
-			if( events == null || events.Count == 0 )
+			if( events.Count == 0 )
 			{
 				_userIO.WriteLine("No events on the specified date.");
 				return;
@@ -178,17 +178,13 @@ namespace WorkTimeReboot
 				_userIO.WriteLine("Please write a number.");
 			}
 
-			var modifiers = _modifiersFileIO.ReadFromFile() ?? new WorkModifiers
-			{
-				HoursModifiers = new List<HoursToWorkModifier>(),
-				IgnoredEventsModifiers = new List<IgnoredEventModifier>()
-			};
+			var modifiers = this.ReadModifiersFromFile();
 
 			var hoursModifiers = modifiers.HoursModifiers.Where(hm => hm.Date.Date != date.Date).ToList();
 			hoursModifiers.Add(new HoursToWorkModifier { Date = date.Date, Hours = hoursToWork });
 
-			var ignoredEventsModifiers = modifiers.IgnoredEventsModifiers.Where(ie => ie.Date.Date != date.Date).ToList();
-			ignoredEventsModifiers.AddRange(ignoredEvents.Select(ie => new IgnoredEventModifier { Date = ie.Time }));
+			var ignoredEventsModifiers = modifiers.IgnoredEventsModifiers.Where(ie => ie.Time.Date != date.Date).ToList();
+			ignoredEventsModifiers.AddRange(ignoredEvents.Select(ie => new IgnoredEventModifier { Time = ie.Time }));
 
 			_modifiersFileIO.WriteToFile(new WorkModifiers
 			{
@@ -207,6 +203,8 @@ namespace WorkTimeReboot
 			var events = this.GetEvents().ToList();
 			events.Add(new WorkEvent() { Time = nowSeconds, Type = EventType.Departure });
 			var workTime = WorkTimesUtils.CreateWorkTimes(events);
+			var modifiers = this.ReadModifiersFromFile();
+			workTime.ApplyModifiers(modifiers);
 
 			var today = workTime.DailyWorks.OrderByDescending(dw => dw.Events.FirstOrDefault().Time).FirstOrDefault();
 			status.Total = workTime.Balance - today.Balance;
@@ -221,8 +219,10 @@ namespace WorkTimeReboot
 		//todo test this
 		protected QuickStatus GetQuickStatus()
 		{
-			var events = _fileIO.ReadFromFile()?.Where(e => e.Time.Date != _clock.Now.Date) ?? new WorkEvent[0];
+			var events = this.ReadEventsFromFile().Where(e => e.Time.Date != _clock.Now.Date);
 			var workTime = WorkTimesUtils.CreateWorkTimes(events);
+			var modifiers = this.ReadModifiersFromFile();
+			workTime.ApplyModifiers(modifiers);
 			return new QuickStatus
 			{
 				Total = workTime.Balance
@@ -239,15 +239,31 @@ namespace WorkTimeReboot
 		//todo test this
 		protected IEnumerable<WorkEvent> GetEvents(bool enableLogging = true)
 		{
-			IEnumerable<WorkEvent> workEvents;
-			if( enableLogging ) _userIO.WriteLine("gathering events...");
-
-			var newWorkEvents = _eventLogReader.GetWorkEvents();
-			var eventsFromFile = _fileIO.ReadFromFile() ?? new WorkEvent[0];
-			workEvents = EventStreamUtils.CleanUpStream(newWorkEvents.Concat(eventsFromFile));
-
-			if( enableLogging ) _userIO.WriteLine("gathered events");
+			var eventsFromLog = this.ReadFromLog(enableLogging);
+			var eventsFromFile = this.ReadEventsFromFile();
+			var workEvents = this.CombineEventLists(eventsFromLog, eventsFromFile);
 			return workEvents;
+		}
+
+		private IEnumerable<WorkEvent> ReadFromLog(bool enableLogging = true)
+		{
+			if( enableLogging ) _userIO.WriteLine("reading eventlog...");
+			var newWorkEvents = _eventLogReader.GetWorkEvents().ToList();
+			if( enableLogging ) _userIO.WriteLine("finished reading eventlog");
+			return newWorkEvents;
+		}
+
+		private IEnumerable<WorkEvent> CombineEventLists(IEnumerable<WorkEvent> a, IEnumerable<WorkEvent> b)
+		{
+			var merged = a.Concat(b);
+			return EventStreamUtils.CleanUpStream(merged);
+		}
+
+		private IEnumerable<WorkEvent> ReadEventsFromFile() => _fileIO.ReadFromFile() ?? new WorkEvent[0];
+
+		private WorkModifiers ReadModifiersFromFile()
+		{
+			return _modifiersFileIO.ReadFromFile() ?? new WorkModifiers();
 		}
 
 		private void ShowHelp()

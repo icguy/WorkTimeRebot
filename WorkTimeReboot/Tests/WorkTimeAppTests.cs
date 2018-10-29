@@ -54,7 +54,6 @@ namespace WorkTimeReboot.Tests
 
 			return context.TestPassed;
 		}
-
 		[Test]
 		private bool Tick_CleansUpFine()
 		{
@@ -86,7 +85,6 @@ namespace WorkTimeReboot.Tests
 
 			return context.TestPassed;
 		}
-
 		[Test]
 		bool T001_DailyWork_FromEvents()
 		{
@@ -323,12 +321,61 @@ namespace WorkTimeReboot.Tests
 				new WorkEvent() {Time = TestHelper.GetDateHours(-24 + 6), Type = EventType.Departure }
 			};
 
+			context.ModifiersFileIO.OnReadFromFile = () => new WorkModifiers();
+
 			var status = context.App.InvokeGetStatus();
 
 			context.ExpectEqual(status.Total, TimeSpan.FromHours(-4));
 			context.ExpectEqual(status.ExpectedDeparture, TestHelper.GetDateHours(12));
 			context.ExpectEqual(status.TodayWork.Balance, TimeSpan.FromHours(-3));
 
+			return context.TestPassed;
+		}
+		[Test]
+		bool T009_Recalculate()
+		{
+			var workTimes = new WorkTimes()
+			{
+				DailyWorks = new DailyWork[] {
+					new DailyWork() {
+						 Events = new WorkEvent[] {
+							new WorkEvent() { Time = new DateTime(2017, 06, 20, 9, 00, 00), Type = EventType.Arrival },
+							new WorkEvent() { Time = new DateTime(2017, 06, 20, 18, 00, 00), Type = EventType.Departure }
+						 }
+					},
+					new DailyWork() {
+						 Events = new WorkEvent[] {
+							new WorkEvent() { Time = new DateTime(2017, 06, 21, 9, 00, 00), Type = EventType.Arrival },
+							new WorkEvent() { Time = new DateTime(2017, 06, 21, 18, 00, 00), Type = EventType.Departure }
+						 }
+
+					},
+					new DailyWork() {
+						 Events = new WorkEvent[] {
+							new WorkEvent() { Time = new DateTime(2017, 06, 22, 9, 00, 00), Type = EventType.Arrival },
+							new WorkEvent() { Time = new DateTime(2017, 06, 22, 18, 00, 00), Type = EventType.Departure }
+						 }
+
+					},
+					new DailyWork() {
+						 Events = new WorkEvent[] {
+							new WorkEvent() { Time = new DateTime(2017, 06, 23, 9, 00, 00), Type = EventType.Arrival },
+							new WorkEvent() { Time = new DateTime(2017, 06, 23, 18, 00, 00), Type = EventType.Departure }
+						 }
+
+					},
+				}
+			};
+
+			workTimes.Recalculate();
+
+			var context = new TestContextBase();
+			context.ExpectEqual(workTimes.Balance, new TimeSpan(4, 0, 0));
+
+			foreach( var dailyWork in workTimes.DailyWorks )
+			{
+				context.ExpectEqual(dailyWork.Balance, new TimeSpan(1, 0, 0));
+			}
 			return context.TestPassed;
 		}
 	}

@@ -33,6 +33,44 @@ namespace WorkTimeReboot.Utils
 			return workEvent;
 		}
 
+		public static void ApplyModifiers(this WorkTimes workTimes, WorkModifiers modifiers)
+		{
+			foreach( var dw in workTimes.DailyWorks )
+			{
+				dw.Events = dw.Events.Where(e => !modifiers.IgnoredEventsModifiers.Any(ie => ie.Time == e.Time)).ToArray();
+
+				var hoursMod = modifiers.HoursModifiers.FirstOrDefault(hm => hm.Date.Date == dw.Events.First().Time.Date);
+				if( hoursMod != null )
+				{
+					dw.HoursToWorkToday = hoursMod.Hours;
+				}
+			}
+
+			workTimes.Recalculate();
+		}
+
+		// todo test
+		public static void Recalculate(this WorkTimes workTimes)
+		{
+			workTimes.Balance = TimeSpan.Zero;
+			var q = workTimes.DailyWorks.GroupBy(w => w.Events.First().Time).Select(g => g.First());
+			workTimes.DailyWorks = q.ToArray();
+
+			foreach( var work in q )
+			{
+				work.Recalculate();
+				workTimes.Balance += work.Balance;
+			}
+		}
+
+		// todo test
+		public static void Recalculate(this DailyWork dailyWork)
+		{
+			var hours = dailyWork.HoursToWorkToday;
+			var work = WorkTimesUtils.CreateDailyWork(dailyWork.Events, hours);
+			dailyWork.Balance = work.Balance;
+		}
+
 		private static EventType GetEventType(this EventLogEntry logEntry)
 		{
 			var id = logEntry.InstanceId;
@@ -44,5 +82,6 @@ namespace WorkTimeReboot.Utils
 				return EventType.Departure;
 			return EventType.Unknown;
 		}
+
 	}
 }

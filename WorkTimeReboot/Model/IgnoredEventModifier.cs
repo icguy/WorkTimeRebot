@@ -4,6 +4,6 @@ namespace WorkTimeReboot.Model
 {
 	public class IgnoredEventModifier
 	{
-		public DateTime Date { get; set; }
+		public DateTime Time { get; set; }
 	}
 }

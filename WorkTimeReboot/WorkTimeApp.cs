@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using WorkTimeReboot.Model;
 using WorkTimeReboot.Services.Clock;
 using WorkTimeReboot.Services.EventLogReader;
@@ -61,7 +60,7 @@ namespace WorkTimeReboot
 			_userIO.WriteLine("tick start");
 			try
 			{
-				var workEvents = this.GetEvents(false);
+				var workEvents = this.GetEvents(false).ToList();
 				_fileIO.WriteToFile(workEvents);
 			}
 			catch( Exception ex )
@@ -112,7 +111,7 @@ namespace WorkTimeReboot
 							this.Tick();
 							break;
 						case "edit":
-							this.EditDay();
+							this.EditDay(tokens);
 							break;
 						default:
 							_userIO.WriteLine("Unknown command, type 'help' for available commands.");
@@ -155,12 +154,20 @@ namespace WorkTimeReboot
 		}
 
 		//todo test this
-		protected void EditDay()
+		protected void EditDay(string[] tokens)
 		{
 			_userIO.WriteLine("type 'q' to quit command");
+			DateTime date = default(DateTime);
+			if( tokens.Length > 1 )
+			{
+				var args = tokens.ToList();
+				args.RemoveAt(0);
+				var input = string.Join(" ", args);
+				DateTime.TryParse(input, out date);
+			}
+
 			_userIO.WriteLine("enter a date");
-			DateTime date;
-			while( true )
+			while( date == default(DateTime) )
 			{
 				var input = this.GetUserInputOrQuit();
 				if( DateTime.TryParse(input, out date) )
@@ -289,7 +296,7 @@ namespace WorkTimeReboot
 		private IEnumerable<WorkEvent> CombineEventLists(IEnumerable<WorkEvent> a, IEnumerable<WorkEvent> b)
 		{
 			var merged = a.Concat(b);
-			return EventStreamUtils.CleanUpStream(merged);
+			return EventStreamUtils.CleanUpStream(merged, _clock.Now);
 		}
 
 		private IEnumerable<WorkEvent> ReadEventsFromFile() => _fileIO.ReadFromFile() ?? new WorkEvent[0];

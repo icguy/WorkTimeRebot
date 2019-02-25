@@ -25,7 +25,8 @@ namespace WorkTimeReboot.Utils
 				var firstEventTime = filteredEvents[0].Time;
 				var currentDayEvents = filteredEvents.Where(e => (e.Time.Date == firstEventTime.Date)).ToList();
 				var currentDailyWork = CreateDailyWork(currentDayEvents, 8);
-				newDailyWorks.Add(currentDailyWork);
+				if( currentDailyWork.Events.Any() )
+					newDailyWorks.Add(currentDailyWork);
 				workTimes.Balance += currentDailyWork.Balance;
 				foreach( var e in currentDayEvents )
 				{

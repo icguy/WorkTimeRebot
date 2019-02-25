@@ -38,6 +38,8 @@ namespace WorkTimeReboot.Utils
 			foreach( var dw in workTimes.DailyWorks )
 			{
 				dw.Events = dw.Events.Where(e => !modifiers.IgnoredEventsModifiers.Any(ie => ie.Time == e.Time)).ToArray();
+				if( !dw.Events.Any() )
+					continue;
 
 				var hoursMod = modifiers.HoursModifiers.FirstOrDefault(hm => hm.Date.Date == dw.Events.First().Time.Date);
 				if( hoursMod != null )
@@ -45,6 +47,8 @@ namespace WorkTimeReboot.Utils
 					dw.HoursToWorkToday = hoursMod.Hours;
 				}
 			}
+
+			workTimes.DailyWorks = workTimes.DailyWorks.Where(dw => dw.Events.Any()).ToArray();
 
 			workTimes.Recalculate();
 		}

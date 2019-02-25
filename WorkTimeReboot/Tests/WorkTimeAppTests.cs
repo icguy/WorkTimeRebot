@@ -378,6 +378,33 @@ namespace WorkTimeReboot.Tests
 			}
 			return context.TestPassed;
 		}
+		[Test]
+		bool CleanUpStream_MessedUpStream_CleansUpFine()
+		{
+			var context = new TestContext();
+			var events = new WorkEvent[] {
+				new WorkEvent() {Time = TestHelper.GetDateHours(-24 + 0), Type = EventType.Arrival },
+				new WorkEvent() {Time = TestHelper.GetDateHours(-24 + 1), Type = EventType.Departure },
+				new WorkEvent() {Time = TestHelper.GetDateHours(-24 + 2), Type = EventType.Arrival },
+				new WorkEvent() {Time = TestHelper.GetDateHours(0), Type = EventType.Arrival },
+				new WorkEvent() {Time = TestHelper.GetDateHours(1), Type = EventType.Departure },
+			};
+
+			context.Clock.Now = TestHelper.GetDateHours(2);
+			var cleanedUp = EventStreamUtils.CleanUpStream(events, context.Clock.Now).ToList();
+
+			context.ExpectEqual(cleanedUp.Count, 4);
+			context.ExpectEqual(cleanedUp[0].Time, TestHelper.GetDateHours(-24 + 0));
+			context.ExpectEqual(cleanedUp[0].Type, EventType.Arrival);
+			context.ExpectEqual(cleanedUp[1].Time, TestHelper.GetDateHours(-24 + 1));
+			context.ExpectEqual(cleanedUp[1].Type, EventType.Departure);
+			context.ExpectEqual(cleanedUp[2].Time, TestHelper.GetDateHours(0));
+			context.ExpectEqual(cleanedUp[2].Type, EventType.Arrival);
+			context.ExpectEqual(cleanedUp[3].Time, TestHelper.GetDateHours(1));
+			context.ExpectEqual(cleanedUp[3].Type, EventType.Departure);
+
+			return context.TestPassed;
+		}
 	}
 
 	class TestContext : TestContextBase

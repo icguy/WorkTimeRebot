@@ -7,6 +7,14 @@ namespace WorkTimeReboot.Utils
 {
 	static class EventStreamUtils
 	{
+		public static IEnumerable<WorkEvent> OrderAndRemoveDuplicate(IEnumerable<WorkEvent> events)
+		{
+			return events
+				.OrderBy(e => e.Time)
+				.GroupBy(e => new { e.Time, e.Type })
+				.Select(e => e.First());
+		}
+
 		public static IEnumerable<WorkEvent> CleanUpStream(IEnumerable<WorkEvent> events, DateTime now)
 		{
 			var eventGroups = events.GroupBy(e => e.Time.Date);

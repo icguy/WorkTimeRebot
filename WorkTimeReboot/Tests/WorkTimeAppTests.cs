@@ -55,37 +55,6 @@ namespace WorkTimeReboot.Tests
 			return context.TestPassed;
 		}
 		[Test]
-		private bool Tick_CleansUpFine()
-		{
-			var context = new TestContext();
-
-			context.EventLogReader.WorkEvents = new WorkEvent[]
-			{
-				new WorkEvent() {Time = TestHelper.GetDateHours(0), Type = EventType.Arrival },
-				new WorkEvent() {Time = TestHelper.GetDateHours(1), Type = EventType.Arrival },
-				new WorkEvent() {Time = TestHelper.GetDateHours(2), Type = EventType.Arrival },
-				new WorkEvent() {Time = TestHelper.GetDateHours(3), Type = EventType.Arrival },
-				new WorkEvent() {Time = TestHelper.GetDateHours(4), Type = EventType.Departure },
-				new WorkEvent() {Time = TestHelper.GetDateHours(5), Type = EventType.Departure },
-				new WorkEvent() {Time = TestHelper.GetDateHours(6), Type = EventType.Departure }
-			};
-
-			context.FileIO.OnReadFromFile = () => new WorkEvent[0];
-
-			List<WorkEvent> eventsWritten = null;
-			context.FileIO.OnWriteToFile = events => eventsWritten = events.ToList();
-
-			context.App.InvokeTick();
-
-			context.ExpectEqual(eventsWritten.Count, 2);
-			context.ExpectEqual(eventsWritten[0].Type, EventType.Arrival);
-			context.ExpectEqual(eventsWritten[1].Type, EventType.Departure);
-			context.ExpectEqual(TestHelper.GetDateHours(0), eventsWritten[0].Time);
-			context.ExpectEqual(TestHelper.GetDateHours(4), eventsWritten[1].Time);
-
-			return context.TestPassed;
-		}
-		[Test]
 		bool T001_DailyWork_FromEvents()
 		{
 			WorkEvent[] events = new WorkEvent[] {

@@ -86,11 +86,7 @@ namespace WorkTimeReboot
 						case "s":
 						case "status":
 							bool quick = tokens.Contains("--quick") || tokens.Contains("-q");
-
-							if( quick )
-								this.GetQuickStatus().Print(_userIO);
-							else
-								this.GetStatus().Print(_userIO);
+							this.GetStatus(quick).Print(_userIO);
 							break;
 						case "log":
 							DateTime? dateArg = null;
@@ -235,37 +231,25 @@ namespace WorkTimeReboot
 		}
 
 		//todo test this
-		protected Status GetStatus()
+		protected Status GetStatus(bool quick = false)
 		{
-			var status = new Status();
 			var now = _clock.Now;
 			var nowSeconds = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, now.Kind);
-			var events = this.GetEvents().ToList();
+			var events = this.GetEvents(true, quick).ToList();
+			events = EventStreamUtils.CleanUpStream(events, now).ToList();
 			events.Add(new WorkEvent() { Time = nowSeconds, Type = EventType.Departure });
 			var workTime = WorkTimesUtils.CreateWorkTimes(events);
 			var modifiers = this.ReadModifiersFromFile();
 			workTime.ApplyModifiers(modifiers);
 
 			var today = workTime.DailyWorks.OrderByDescending(dw => dw.Events.FirstOrDefault().Time).FirstOrDefault();
-			status.Total = workTime.Balance - today.Balance;
-
 			var expectedDeparture = this.GetExpectedDeparture(today);
 
-			status.TodayWork = today;
-			status.ExpectedDeparture = expectedDeparture;
-			return status;
-		}
-
-		//todo test this
-		protected QuickStatus GetQuickStatus()
-		{
-			var events = this.ReadEventsFromFile().Where(e => e.Time.Date != _clock.Now.Date);
-			var workTime = WorkTimesUtils.CreateWorkTimes(events);
-			var modifiers = this.ReadModifiersFromFile();
-			workTime.ApplyModifiers(modifiers);
-			return new QuickStatus
+			return new Status
 			{
-				Total = workTime.Balance
+				Total = workTime.Balance - today.Balance,
+				TodayWork = today,
+				ExpectedDeparture = expectedDeparture
 			};
 		}
 
@@ -277,12 +261,16 @@ namespace WorkTimeReboot
 		}
 
 		//todo test this
-		protected IEnumerable<WorkEvent> GetEvents(bool enableLogging = true)
+		protected IEnumerable<WorkEvent> GetEvents(bool enableLogging = true, bool quick = false)
 		{
-			var eventsFromLog = this.ReadFromLog(enableLogging);
 			var eventsFromFile = this.ReadEventsFromFile();
-			var workEvents = this.CombineEventLists(eventsFromLog, eventsFromFile);
-			return workEvents;
+			var events = eventsFromFile;
+			if( !quick )
+			{
+				var eventsFromLog = this.ReadFromLog(enableLogging);
+				events = eventsFromFile.Concat(eventsFromLog);
+			}
+			return EventStreamUtils.OrderAndRemoveDuplicate(events);
 		}
 
 		private IEnumerable<WorkEvent> ReadFromLog(bool enableLogging = true)
@@ -291,12 +279,6 @@ namespace WorkTimeReboot
 			var newWorkEvents = _eventLogReader.GetWorkEvents().ToList();
 			if( enableLogging ) _userIO.WriteLine("finished reading eventlog");
 			return newWorkEvents;
-		}
-
-		private IEnumerable<WorkEvent> CombineEventLists(IEnumerable<WorkEvent> a, IEnumerable<WorkEvent> b)
-		{
-			var merged = a.Concat(b);
-			return EventStreamUtils.CleanUpStream(merged, _clock.Now);
 		}
 
 		private IEnumerable<WorkEvent> ReadEventsFromFile() => _fileIO.ReadFromFile() ?? new WorkEvent[0];

@@ -28,7 +28,7 @@ namespace WorkTimeReboot
 
 			var timer = new Timer(config.TimerIntervalInSeconds * 1000);
 			var fileIO = new FileIO<IEnumerable<WorkEvent>>(config.FilePath);
-			var eventLogReader = new EventLogReader();
+			var eventLogReader = new EventLogReader("ayhand");
 			var userIO = new UserIO();
 			var clock = new AppClock();
 			var modifiersFileIO = new FileIO<WorkModifiers>(config.ModifiersFilePath);

@@ -10,13 +10,21 @@ namespace WorkTimeReboot.Services.EventLogReader
 	class EventLogReader : IEventLogReader
 	{
 		private readonly long[] EventIds = new[] { 4647L, 4648L, 4800L, 4801L, /*4624L,*/ /*4634L*/ };
+		private string _userName;
+
+		public EventLogReader(string userName)
+		{
+			_userName = userName;
+		}
 
 		public virtual IEnumerable<WorkEvent> GetWorkEvents()
 		{
 			var securityLog = this.GetSecurityLog();
-			return securityLog.Entries.Cast<EventLogEntry>()
+			var entries = securityLog.Entries.Cast<EventLogEntry>()
 				.Where(e => EventIds.Contains(e.InstanceId))
-				.Select(e => e.ToWorkEvent());
+				.Where(e => e.Message.Contains(_userName))
+				.ToList();
+			return entries.Select(e => e.ToWorkEvent());
 		}
 
 		private EventLog GetSecurityLog()
